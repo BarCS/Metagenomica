@@ -1,0 +1,100 @@
+---
+title: "Tarea82"
+author: "Bárbara Cruz Salazar"
+date: "5/7/2020"
+output: html_document
+---
+
+## 1. Carga las librerias y lee datos
+
+```{r eval=TRUE, echo=FALSE}
+library(phyloseq)
+library(vegan)
+library(ggplot2)
+
+## Lee los datos
+soil.biom <- import_biom ("../data/taxonomy200.biom") ## si lo hago con read_biom, solo jala los OTUs y no se puede asociar con la clasificación taxonómica
+soil.biom
+
+head (tax_table(soil.biom))
+sample_data(soil.biom)
+otu_table(soil.biom)
+```
+
+## 2. Contruir tabla de OTUs a tabla de presencia/ausencia
+
+```{r eval=TRUE, echo=FALSE}
+## Cambio el nombre de las columnas de las tabla taxonómica
+colnames (tax_table(soil.biom)) <- c("Domain", "Phylum", "Class", "Order", "Family", "Genus", "Species")
+
+## El archivo .biom tiene tres "subarchivos": 1. tabla de OTUs, 2. datos de la muestra y 3. clasificación taxonómica.
+## Para ver la tabla de OTUs, se ocupa la función otu_table, para los datos de la muestra sample_data
+## y para la tabla taxonómica tax_table.
+
+## Extraer la tabla de OTUs en otro objeto
+otus <- otu_table(soil.biom)
+otus
+
+## Transformar la tabla de OTUs a presencia/ausencia usando la función decostand (method="pa")
+PA <- decostand (otus, method="pa", rownames=TRUE)
+PA
+
+```
+
+## 3. Realizar la figura
+
+```{r eval=TRUE, echo=TRUE}
+## Realizar un plot_bar de la abundancia de OTUs por phylum en cada hospedero (host) y tratamiento (treatment) usando facet_wrap
+plot_bar(soil.biom, "Host", fill="Phylum") + 
+  geom_bar(aes(color="Phylum", fill="Phylum"), stat="identity", position= "stack") + 
+  facet_wrap("Treatment") ## Para tener los dos
+
+```
+
+## 4. Ralizar el ANOVA
+
+```{r eval=TRUE, echo=TRUE}
+## Hacer un anova de la riqueza observada ("Observed") por hospedero y tratamiento (two-way)
+### Índice de diversidad, colocada en una tabla
+diversityalfa <- estimate_richness(soil.biom, measures= "Observed")
+diversityalfa
+
+## Combino las tablas
+data <- cbind(sample_data(soil.biom), diversityalfa)
+data
+
+anova<- aov(Observed ~ Treatment*Host, data=data)
+summary(anova)
+```
+
+## 5. Análisis NDMS
+
+```{r eval=TRUE, echo=TRUE}
+## Desde una matriz de distancia de Raup-Crick ("raup"), realizar una ordinación NMDS, visualizándole por hospedero y tratamiento usando facet_wrap
+## Primero se crea la matriz con las distancias
+raup <- distance (soil.biom, method="raup")
+raup
+
+NMDS = ordinate(soil.biom, method="NMDS", distance=raup)
+NMDS
+
+plot_ordination(soil.biom, NMDS, color="Host") + geom_point(size=3) + 
+  facet_wrap(~ Treatment) +
+  theme_bw()
+
+```
+
+## 6. Test de adonis, diversidad beta
+
+```{r eval=TRUE, echo=TRUE}
+## Hacer un test de adonis de la composición de la comunidad por hospedero y tratamiento
+## diferencias significativas en hospederos en términos de comunidad
+
+adonis(raup ~Host, data=data)
+
+adonis(raup~Treatment, data=data)
+
+adonis(raup ~Host * Treatment, data=data)
+
+```
+
