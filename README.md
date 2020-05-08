@@ -16,4 +16,4 @@
 ## Tarea 8.2
 ### En el directorio `bin`se encuentra el script de este análsis (Tarea82.md).
 ### Los resultados se encuentran en la carpeta `data`(Tarea82.html).
-### Los resultados muestran que la abundancia de OTUs por tratamiento y hospedero es similar. La diversidad alfa no mostró diferencias significativas; sin embargo, entre comunidades (diversidad beta) se observaron diferencias entre tratamientos y cuando se combinan los dos factores (tratamientos y hospedero). 
+### Los resultados muestran que la abundancia de OTUs varía dentro y entre tratamientos. En el tratamiento "nativo" la abundancia de OTUs es similar, mientras que, en el tratamiento "mezclado" la abundancia de OTUs es muy dispar entre hospederos. No obstante, el ANOVA no detectó diferencia significativa entre tratamientos y hospederos en la diversidad alfa. El análisis NDMS indica un nivel de estres en el límite aceptable (0.15) que sugiere un ajuste medio del modelo. Finalmente, la diversidad beta indicó diferencias entre tratamientos y la interacción con el hospedero, pero ninguna diferencia cuando solo se analiza entre hospederos.
